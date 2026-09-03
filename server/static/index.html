@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Porthole</title>
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+  <header class="topbar">
+    <button id="up-btn" class="icon-btn" title="Up" hidden>&larr;</button>
+    <nav id="breadcrumbs" class="breadcrumbs"></nav>
+  </header>
+
+  <main>
+    <p id="status" class="status" hidden></p>
+    <ul id="entries" class="entries"></ul>
+  </main>
+
+  <label id="upload-label" class="fab" title="Upload file" hidden>
+    +
+    <input id="upload-input" type="file" multiple hidden />
+  </label>
+
+  <script src="/app.js"></script>
+</body>
+</html>

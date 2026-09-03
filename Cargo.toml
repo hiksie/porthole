@@ -1,0 +1,42 @@
+[workspace]
+members = [
+    "client",
+    "server",
+    "common",
+]
+resolver = "2"
+
+[workspace.dependencies]
+tokio = { version = "1.52.3", features = ["full"] }
+tokio-util = { version = "0.7", features = ["io"] }
+axum = { version = "0.8.9", features = ["macros", "multipart"] }
+axum-extra = { version = "0.12.6", features = ["typed-header"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+dirs = "6.0"
+if-addrs = "0.13"
+rust-embed = "8"
+mime_guess = "2"
+rfd = "0.15"
+
+common = { path = "common" }
+server = { path = "server" }
+
+[workspace.dependencies.iced]
+git = "https://github.com/iced-rs/iced.git"
+rev = "8abb85ad924e63bd9a8c7c6ef133f406abfc846e"
+version = "0.15.0-dev"
+features = [
+    "tokio",
+    "web-colors",
+    "advanced",
+    "wgpu",
+    "tiny-skia",
+    # "debug",
+]
+
+
+[workspace.dependencies.iced_runtime]
+git = "https://github.com/iced-rs/iced.git"
+rev = "8abb85ad924e63bd9a8c7c6ef133f406abfc846e"
+version = "0.15.0-dev"
