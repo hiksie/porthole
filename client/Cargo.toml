@@ -1,0 +1,12 @@
+[package]
+name = "client"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+iced.workspace = true
+tokio.workspace = true
+rfd.workspace = true
+if-addrs.workspace = true
+common.workspace = true
+server.workspace = true
