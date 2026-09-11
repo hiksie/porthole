@@ -10,7 +10,9 @@ pub struct Config {
 
 impl Config {
     fn file_path() -> Option<PathBuf> {
-        dirs::config_dir().or_else(dirs::config_local_dir).map(|path| path.join(APP_ID).join("config.json"))
+        dirs::config_dir()
+            .or_else(dirs::config_local_dir)
+            .map(|path| path.join(APP_ID).join("config.json"))
     }
 
     pub fn load() -> Self {
@@ -32,8 +34,8 @@ impl Config {
             std::fs::create_dir_all(parent)?;
         }
 
-        let json = serde_json::to_string_pretty(self)
-            .expect("Config serializes to JSON without errors");
+        let json =
+            serde_json::to_string_pretty(self).expect("Config serializes to JSON without errors");
 
         std::fs::write(path, json)
     }

@@ -15,14 +15,16 @@ pub async fn static_asset(uri: Uri) -> Response {
     match Assets::get(&path) {
         Some(file) => {
             let mime = mime_guess::from_path(&path).first_or_octet_stream();
-            ([(header::CONTENT_TYPE, mime.as_ref().to_string())], file.data).into_response()
-        }
-        None => match Assets::get("index.html") {
-            Some(file) => (
-                [(header::CONTENT_TYPE, "text/html".to_string())],
+            (
+                [(header::CONTENT_TYPE, mime.as_ref().to_string())],
                 file.data,
             )
-                .into_response(),
+                .into_response()
+        }
+        None => match Assets::get("index.html") {
+            Some(file) => {
+                ([(header::CONTENT_TYPE, "text/html".to_string())], file.data).into_response()
+            }
             None => (StatusCode::NOT_FOUND, "not found").into_response(),
         },
     }

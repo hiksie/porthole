@@ -56,7 +56,7 @@ fn build(folders: &[PathBuf]) -> Vec<SharedFolder> {
 
     for path in folders {
         let canonical = path.canonicalize().unwrap_or_else(|_| path.clone());
-        
+
         if seen.contains(&canonical) {
             continue;
         }
