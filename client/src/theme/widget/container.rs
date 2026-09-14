@@ -26,3 +26,7 @@ pub fn light_rounded(theme: &Theme) -> Style {
         .background(theme.palette().background_light)
         .border(border::rounded(2))
 }
+
+pub fn red(theme: &Theme) -> Style {
+    Style::default().background(theme.palette().red)
+}

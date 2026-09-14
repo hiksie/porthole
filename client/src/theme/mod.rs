@@ -48,14 +48,18 @@ pub struct Palette {
     border_hover: Color,
     border_pressed: Color,
     text_primary: Color,
+    text_primary_hover: Color,
+    text_primary_pressed: Color,
     text_secondary: Color,
     text_secondary_hover: Color,
     text_secondary_pressed: Color,
     text_disabled: Color,
     green: Color,
+    red: Color,
     scroller: ScrollerColors,
     button_primary: ButtonColors,
     button_secondary: ButtonColors,
+    button_transparent_white: ButtonColors,
 }
 
 pub struct ScrollerColors {
@@ -78,11 +82,14 @@ impl Palette {
         border_hover: color!(0x50697c),
         border_pressed: color!(0x587589),
         text_primary: color!(0xd9e2ec),
+        text_primary_hover: color!(0xeef2f7),
+        text_primary_pressed: color!(0xfcfcfd),
         text_secondary: color!(0x728caa),
         text_secondary_hover: color!(0x8ba3bb),
         text_secondary_pressed: color!(0x9eb6c7),
         text_disabled: color!(0x525860),
         green: color!(0x7fae6e),
+        red: color!(0xbf4f5a),
         scroller: ScrollerColors {
             active: color!(0x283343),
             hovered: color!(0x303e4f),
@@ -98,5 +105,10 @@ impl Palette {
             hovered: color!(0x6a83a8, 0.15),
             pressed: color!(0x6a83a8, 0.20),
         },
+        button_transparent_white: ButtonColors {
+            active: Color::TRANSPARENT,
+            hovered: color!(0xffffff, 0.15),
+            pressed: color!(0xffffff, 0.20),
+        }
     };
 }

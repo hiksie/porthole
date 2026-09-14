@@ -8,7 +8,8 @@ use crate::theme::Theme;
 pub enum ButtonClass {
     Primary,
     Secondary,
-    Transparent,
+    TransparentBlue,
+    TransparentWhite,
 }
 
 impl Catalog for Theme {
@@ -22,7 +23,8 @@ impl Catalog for Theme {
         match class {
             ButtonClass::Primary => primary(self, status),
             ButtonClass::Secondary => secondary(self, status),
-            ButtonClass::Transparent => transparent(self, status),
+            ButtonClass::TransparentBlue => transparent_blue(self, status),
+            ButtonClass::TransparentWhite => transparent_white(self, status),
         }
     }
 }
@@ -82,7 +84,7 @@ fn secondary(theme: &Theme, status: Status) -> Style {
     }
 }
 
-fn transparent(theme: &Theme, status: Status) -> Style {
+fn transparent_blue(theme: &Theme, status: Status) -> Style {
     let palette = theme.palette();
 
     let style = Style {
@@ -102,6 +104,35 @@ fn transparent(theme: &Theme, status: Status) -> Style {
         Status::Pressed => Style {
             background: Some(palette.button_secondary.pressed.into()),
             text_color: palette.text_secondary_pressed,
+            ..style
+        },
+        Status::Disabled => Style {
+            text_color: palette.text_disabled.into(),
+            ..style
+        },
+    }
+}
+
+fn transparent_white(theme: &Theme, status: Status) -> Style{
+    let palette = theme.palette();
+
+    let style = Style {
+        background: Some(palette.button_transparent_white.active.into()),
+        text_color: palette.text_primary.into(),
+        border: border::rounded(2),
+        ..Style::default()
+    };
+
+    match status {
+        Status::Active => style,
+        Status::Hovered => Style {
+            background: Some(palette.button_transparent_white.hovered.into()),
+            text_color: palette.text_primary_hover,
+            ..style
+        },
+        Status::Pressed => Style {
+            background: Some(palette.button_transparent_white.pressed.into()),
+            text_color: palette.text_primary_pressed,
             ..style
         },
         Status::Disabled => Style {

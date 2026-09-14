@@ -10,10 +10,6 @@ pub fn cancel<'a>() -> Text<'a> {
     to_text('\u{E801}')
 }
 
-pub fn plus<'a>() -> Text<'a> {
-    to_text('\u{E806}')
-}
-
 pub fn play<'a>() -> Text<'a> {
     to_text('\u{E803}')
 }
@@ -26,8 +22,16 @@ pub fn qrcode<'a>() -> Text<'a> {
     to_text('\u{E805}')
 }
 
+pub fn plus<'a>() -> Text<'a> {
+    to_text('\u{E806}')
+}
+
 pub fn circle<'a>() -> Text<'a> {
     to_text('\u{F111}')
+}
+
+pub fn folder<'a>() -> Text<'a> {
+    to_text('\u{F114}')
 }
 
 fn to_text<'a>(unicode: char) -> Text<'a> {

@@ -17,7 +17,7 @@ impl<'a> ButtonLabel<'a> {
         self,
     ) -> iced::widget::Button<'a, Message, Theme, iced::Renderer> {
         match self {
-            ButtonLabel::Icon(icon) => Self::button(icon).padding([0, 12]),
+            ButtonLabel::Icon(icon) => Self::button(icon),
             ButtonLabel::Text(text) => Self::button(Self::text(text)).padding([0, 18]),
             ButtonLabel::IconWithText(icon, text) => Self::button(
                 row![icon, Self::text(text)]

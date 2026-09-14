@@ -6,10 +6,10 @@ use std::net::{IpAddr, SocketAddr};
 use std::path::PathBuf;
 use tokio::sync::oneshot;
 
-use crate::Element;
 use crate::button::ButtonLabel;
 use crate::theme::widget::button::ButtonClass;
 use crate::theme::{self, Theme};
+use crate::{Element, font};
 use crate::{icon, util};
 
 const SERVER_PORT: u16 = 8080;
@@ -53,6 +53,7 @@ pub enum Message {
     RemoveFolder(PathBuf),
     ToggleServer,
     ServerStopped(Result<(), String>),
+    CloseError,
 }
 
 impl App {
@@ -77,6 +78,10 @@ impl App {
                 if let Err(err) = result {
                     self.error = Some(format!("Server stopped with an error: {err}"));
                 }
+                Task::none()
+            }
+            Message::CloseError => {
+                self.error = None;
                 Task::none()
             }
         }
@@ -139,21 +144,28 @@ impl App {
                 .into()
         } else {
             column(self.config.folders.iter().map(|folder| {
+                let folder_icon = icon::folder().style(theme::widget::text::secondary);
+
                 let folder_path = text(folder.display().to_string())
                     .width(Length::Fill)
                     .wrapping(Wrapping::None)
                     .ellipsis(Ellipsis::End);
+
                 let remove_btn = ButtonLabel::Icon(icon::trash())
                     .into_button()
+                    .height(28)
+                    .padding([0, 9])
                     .on_press(Message::RemoveFolder(folder.clone()))
-                    .class(ButtonClass::Transparent);
+                    .class(ButtonClass::TransparentBlue);
 
                 container(
-                    row![folder_path, remove_btn]
-                        .spacing(8)
+                    row![folder_icon, folder_path, remove_btn]
+                        .spacing(10)
                         .align_y(Alignment::Center),
                 )
-                .padding(padding::all(5).left(15))
+                .height(40)
+                .align_y(Alignment::Center)
+                .padding(padding::left(15).right(5))
                 .style(crate::theme::widget::container::light_rounded)
                 .into()
             }))
@@ -192,7 +204,7 @@ impl App {
 
             let qr_btn = ButtonLabel::Icon(icon::qrcode())
                 .into_button()
-                .class(ButtonClass::Transparent);
+                .class(ButtonClass::TransparentBlue);
 
             Some(
                 row![url, qr_btn]
@@ -204,10 +216,24 @@ impl App {
             None
         };
 
-        let error = self
-            .error
-            .as_ref()
-            .map(|error| text(format!("Error: {error}")));
+        let error = self.error.as_ref().map(|error| {
+            container(
+                row![
+                    text(format!("Error: {error}")).size(12).width(Length::Fill),
+                    ButtonLabel::Icon(icon::cancel())
+                        .into_button()
+                        .padding([0, 7])
+                        .height(20)
+                        .on_press(Message::CloseError)
+                        .class(ButtonClass::TransparentWhite)
+                ]
+                .spacing(10)
+                .align_y(Alignment::Center),
+            )
+            .width(Length::Fill)
+            .padding(padding::left(15).right(10).top(5).bottom(5))
+            .style(theme::widget::container::red)
+        });
 
         let footer = container(
             row![container(toggle_button).width(Length::Fill), status].align_y(Alignment::Center),
@@ -227,6 +253,26 @@ impl App {
 
     pub fn theme(&self) -> Option<Theme> {
         Theme::default().into()
+    }
+
+    pub fn window_settings() -> iced::window::Settings {
+        let size = iced::Size::new(500.0, 768.0);
+
+        iced::window::Settings {
+            size: size,
+            min_size: Some(size),
+            ..iced::window::Settings::default()
+        }
+    }
+
+    pub fn settings() -> iced::Settings {
+        iced::Settings {
+            id: Some(common::APP_ID.into()),
+            default_font: iced::Font::new("JetBrains Mono"),
+            default_text_size: 14.into(),
+            fonts: font::load(),
+            ..iced::Settings::default()
+        }
     }
 }
 
