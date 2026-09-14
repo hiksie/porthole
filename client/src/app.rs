@@ -51,7 +51,7 @@ impl Default for App {
 #[derive(Debug, Clone)]
 pub enum Message {
     AddFolder,
-    FolderPicked(Option<PathBuf>),
+    FoldersPicked(Option<Vec<PathBuf>>),
     RemoveFolder(PathBuf),
     ToggleServer,
     ServerStopped(Result<(), String>),
@@ -63,13 +63,15 @@ pub enum Message {
 impl App {
     pub fn update(&mut self, message: Message) -> Task<Message> {
         match message {
-            Message::AddFolder => Task::perform(pick_folder(), Message::FolderPicked),
-            Message::FolderPicked(Some(path)) => {
-                self.config.add_folder(path);
+            Message::AddFolder => Task::perform(pick_folders(), Message::FoldersPicked),
+            Message::FoldersPicked(Some(paths)) => {
+                for path in paths {
+                    self.config.add_folder(path);
+                }
                 self.update_config();
                 Task::none()
             }
-            Message::FolderPicked(None) => Task::none(),
+            Message::FoldersPicked(None) => Task::none(),
             Message::RemoveFolder(path) => {
                 self.config.remove_folder(&path);
                 self.update_config();
@@ -319,9 +321,11 @@ impl App {
     }
 }
 
-async fn pick_folder() -> Option<PathBuf> {
-    rfd::AsyncFileDialog::new()
-        .pick_folder()
-        .await
-        .map(|handle| handle.path().to_path_buf())
+async fn pick_folders() -> Option<Vec<PathBuf>> {
+    rfd::AsyncFileDialog::new().pick_folders().await.map(|handles| {
+        handles
+            .into_iter()
+            .map(|handle| handle.path().to_path_buf())
+            .collect()
+    })
 }
