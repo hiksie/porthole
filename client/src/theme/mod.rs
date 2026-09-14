@@ -56,10 +56,13 @@ pub struct Palette {
     text_disabled: Color,
     green: Color,
     red: Color,
+    backdrop: Color,
     scroller: ScrollerColors,
     button_primary: ButtonColors,
     button_secondary: ButtonColors,
     button_transparent_white: ButtonColors,
+    qr_background: Color,
+    qr_cell: Color,
 }
 
 pub struct ScrollerColors {
@@ -90,6 +93,7 @@ impl Palette {
         text_disabled: color!(0x525860),
         green: color!(0x7fae6e),
         red: color!(0xbf4f5a),
+        backdrop: color!(0x0d1621, 0.6),
         scroller: ScrollerColors {
             active: color!(0x283343),
             hovered: color!(0x303e4f),
@@ -109,6 +113,8 @@ impl Palette {
             active: Color::TRANSPARENT,
             hovered: color!(0xffffff, 0.15),
             pressed: color!(0xffffff, 0.20),
-        }
+        },
+        qr_background: color!(0xffffff),
+        qr_cell: color!(0x000000),
     };
 }

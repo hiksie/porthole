@@ -30,3 +30,7 @@ pub fn light_rounded(theme: &Theme) -> Style {
 pub fn red(theme: &Theme) -> Style {
     Style::default().background(theme.palette().red)
 }
+
+pub fn backdrop(theme: &Theme) -> Style {
+    Style::default().background(theme.palette().backdrop)
+}

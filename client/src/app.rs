@@ -1,6 +1,6 @@
 use iced::widget::scrollable::{Direction, Scrollbar};
 use iced::widget::text::{Ellipsis, Wrapping};
-use iced::widget::{column, container, row, rule, scrollable, text};
+use iced::widget::{column, container, opaque, qr_code, row, rule, scrollable, stack, text};
 use iced::{Alignment, Length, Task, padding};
 use std::net::{IpAddr, SocketAddr};
 use std::path::PathBuf;
@@ -22,6 +22,7 @@ pub struct App {
     shutdown_tx: Option<oneshot::Sender<()>>,
     local_ip: Option<IpAddr>,
     error: Option<String>,
+    qr_modal: Option<qr_code::Data>,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -42,6 +43,7 @@ impl Default for App {
             shutdown_tx: None,
             local_ip: util::detect_local_ip(),
             error: None,
+            qr_modal: None,
         }
     }
 }
@@ -54,6 +56,8 @@ pub enum Message {
     ToggleServer,
     ServerStopped(Result<(), String>),
     CloseError,
+    OpenQrModal(String),
+    CloseQrModal,
 }
 
 impl App {
@@ -82,6 +86,21 @@ impl App {
             }
             Message::CloseError => {
                 self.error = None;
+                Task::none()
+            }
+            Message::OpenQrModal(url) => {
+                match qr_code::Data::new(url.as_bytes()) {
+                    Ok(data) => {
+                        self.qr_modal = Some(data);
+                    }
+                    Err(err) => {
+                        self.error = Some(err.to_string());
+                    }
+                }
+                Task::none()
+            }
+            Message::CloseQrModal => {
+                self.qr_modal = None;
                 Task::none()
             }
         }
@@ -190,24 +209,25 @@ impl App {
             .class(ButtonClass::Primary);
 
         let status: Option<Element<'_, Message>> = if is_running {
-            let url = match self.local_ip {
-                Some(ip) => format!("http://{ip}:{SERVER_PORT}"),
-                None => "?".to_string(),
-            };
+            let url = self.local_ip.map(|ip| format!("http://{ip}:{SERVER_PORT}"));
 
-            let url = row![
+            let qr_btn = ButtonLabel::Icon(icon::qrcode())
+                .into_button()
+                .padding([0, 12])
+                .class(ButtonClass::TransparentBlue)
+                .on_press_maybe(url.as_ref().map(|url| Message::OpenQrModal(url.clone())));
+
+            let url_row = row![
                 icon::circle().size(8).style(theme::widget::text::green),
-                text(url).size(12).style(theme::widget::text::green)
+                text(url.unwrap_or_else(|| "?".to_string()))
+                    .size(12)
+                    .style(theme::widget::text::green)
             ]
             .align_y(Alignment::Center)
             .spacing(8);
 
-            let qr_btn = ButtonLabel::Icon(icon::qrcode())
-                .into_button()
-                .class(ButtonClass::TransparentBlue);
-
             Some(
-                row![url, qr_btn]
+                row![url_row, qr_btn]
                     .align_y(Alignment::Center)
                     .spacing(10)
                     .into(),
@@ -241,14 +261,37 @@ impl App {
         .width(Length::Fill)
         .padding(15);
 
-        column![
+        let qr_modal: Option<Element<'_, Message>> = self.qr_modal.as_ref().map(|qr_data| {
+            let qr_code = qr_code(&qr_data).cell_size(6);
+
+            let overlay = container(qr_code)
+                .width(Length::Fill)
+                .height(Length::Fill)
+                .center(Length::Fill)
+                .style(theme::widget::container::backdrop);
+
+            let close_btn = container(
+                ButtonLabel::Icon(icon::cancel().size(18))
+                    .into_button()
+                    .padding([0, 14])
+                    .on_press(Message::CloseQrModal)
+                    .class(ButtonClass::TransparentBlue),
+            )
+            .align_right(Length::Fill)
+            .padding(15);
+
+            opaque(stack![overlay, close_btn]).into()
+        });
+
+        let screen = column![
             header,
             folders_scrollable,
             error,
             rule::horizontal(1),
             footer
-        ]
-        .into()
+        ];
+
+        stack![screen].push(qr_modal).into()
     }
 
     pub fn theme(&self) -> Option<Theme> {

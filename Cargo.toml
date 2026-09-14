@@ -32,6 +32,7 @@ features = [
     "advanced",
     "wgpu",
     "tiny-skia",
+    "qr_code",
     # "debug",
 ]
 

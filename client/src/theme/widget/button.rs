@@ -113,7 +113,7 @@ fn transparent_blue(theme: &Theme, status: Status) -> Style {
     }
 }
 
-fn transparent_white(theme: &Theme, status: Status) -> Style{
+fn transparent_white(theme: &Theme, status: Status) -> Style {
     let palette = theme.palette();
 
     let style = Style {
