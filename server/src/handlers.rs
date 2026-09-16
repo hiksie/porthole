@@ -144,18 +144,14 @@ pub async fn upload(
         return Err(StatusCode::BAD_REQUEST);
     }
 
-    while let Some(field) = multipart
-        .next_field()
-        .await
-        .map_err(|_| StatusCode::BAD_REQUEST)?
-    {
+    while let Some(field) = multipart.next_field().await.map_err(|err| err.status())? {
         let Some(file_name) = field.file_name().map(str::to_string) else {
             continue;
         };
 
         let safe_name = sanitize_filename(&file_name);
         let dest = dir.join(&safe_name);
-        let data = field.bytes().await.map_err(|_| StatusCode::BAD_REQUEST)?;
+        let data = field.bytes().await.map_err(|err| err.status())?;
 
         tokio::fs::write(&dest, &data)
             .await

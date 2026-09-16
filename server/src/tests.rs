@@ -200,6 +200,39 @@ async fn upload_sanitizes_path_traversal_in_filename() {
 }
 
 #[tokio::test]
+async fn upload_accepts_files_larger_than_axum_default_body_limit() {
+    let (dir, router, root) = shared_router();
+
+    let boundary = "TESTBOUNDARY";
+    let big_content = vec![b'x'; 3 * 1024 * 1024]; // 3MB, above axum's 2MB default
+    let mut body = format!(
+        "--{boundary}\r\n\
+         Content-Disposition: form-data; name=\"file\"; filename=\"big.bin\"\r\n\
+         Content-Type: application/octet-stream\r\n\r\n"
+    )
+    .into_bytes();
+    body.extend_from_slice(&big_content);
+    body.extend_from_slice(format!("\r\n--{boundary}--\r\n").as_bytes());
+
+    let response = router
+        .oneshot(
+            Request::post(format!("/api/upload?root={root}&path="))
+                .header(
+                    "content-type",
+                    format!("multipart/form-data; boundary={boundary}"),
+                )
+                .body(Body::from(body))
+                .unwrap(),
+        )
+        .await
+        .unwrap();
+    assert_eq!(response.status(), StatusCode::OK);
+
+    let saved = std::fs::read(dir.path().join("big.bin")).unwrap();
+    assert_eq!(saved.len(), big_content.len());
+}
+
+#[tokio::test]
 async fn folder_update_is_visible_without_restart() {
     let dir = setup_shared_folder();
     let (handle, state) = crate::FolderHandle::new(&[]);

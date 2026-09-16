@@ -322,10 +322,13 @@ impl App {
 }
 
 async fn pick_folders() -> Option<Vec<PathBuf>> {
-    rfd::AsyncFileDialog::new().pick_folders().await.map(|handles| {
-        handles
-            .into_iter()
-            .map(|handle| handle.path().to_path_buf())
-            .collect()
-    })
+    rfd::AsyncFileDialog::new()
+        .pick_folders()
+        .await
+        .map(|handles| {
+            handles
+                .into_iter()
+                .map(|handle| handle.path().to_path_buf())
+                .collect()
+        })
 }
