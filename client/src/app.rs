@@ -63,7 +63,10 @@ pub enum Message {
 impl App {
     pub fn update(&mut self, message: Message) -> Task<Message> {
         match message {
-            Message::AddFolder => Task::perform(pick_folders(), Message::FoldersPicked),
+            Message::AddFolder => Task::perform(
+                pick_folders(self.config.folders.clone()),
+                Message::FoldersPicked,
+            ),
             Message::FoldersPicked(Some(paths)) => {
                 for path in paths {
                     self.config.add_folder(path);
@@ -321,14 +324,19 @@ impl App {
     }
 }
 
-async fn pick_folders() -> Option<Vec<PathBuf>> {
-    rfd::AsyncFileDialog::new()
-        .pick_folders()
-        .await
-        .map(|handles| {
-            handles
-                .into_iter()
-                .map(|handle| handle.path().to_path_buf())
-                .collect()
-        })
+async fn pick_folders(existing_folders: Vec<PathBuf>) -> Option<Vec<PathBuf>> {
+    let mut dialog = rfd::AsyncFileDialog::new();
+
+    if let Some(start_dir) = existing_folders.into_iter().rev().find(|f| f.exists()) {
+        dialog = dialog.set_directory(start_dir);
+    } else if let Some(home) = dirs::home_dir() {
+        dialog = dialog.set_directory(home);
+    }
+
+    dialog.pick_folders().await.map(|handles| {
+        handles
+            .into_iter()
+            .map(|handle| handle.path().to_path_buf())
+            .collect()
+    })
 }

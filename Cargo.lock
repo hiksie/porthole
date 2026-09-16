@@ -531,6 +531,7 @@ name = "client"
 version = "0.1.0"
 dependencies = [
  "common",
+ "dirs",
  "iced",
  "if-addrs",
  "rfd",
@@ -575,6 +576,7 @@ dependencies = [
  "dirs",
  "serde",
  "serde_json",
+ "tempfile",
 ]
 
 [[package]]

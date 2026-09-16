@@ -8,5 +8,6 @@ iced.workspace = true
 tokio.workspace = true
 rfd.workspace = true
 if-addrs.workspace = true
+dirs.workspace = true
 common.workspace = true
 server.workspace = true

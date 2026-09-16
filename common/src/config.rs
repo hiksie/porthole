@@ -16,10 +16,22 @@ impl Config {
     }
 
     pub fn load() -> Self {
-        Self::file_path()
+        let mut config: Self = Self::file_path()
             .and_then(|path| std::fs::read_to_string(path).ok())
             .and_then(|contents| serde_json::from_str(&contents).ok())
-            .unwrap_or_default()
+            .unwrap_or_default();
+
+        if config.remove_missing_folders() {
+            let _ = config.save();
+        }
+
+        config
+    }
+
+    pub fn remove_missing_folders(&mut self) -> bool {
+        let before = self.folders.len();
+        self.folders.retain(|folder| folder.exists());
+        self.folders.len() != before
     }
 
     pub fn save(&self) -> std::io::Result<()> {
@@ -79,5 +91,34 @@ mod tests {
         let json = serde_json::to_string(&config).unwrap();
         let restored: Config = serde_json::from_str(&json).unwrap();
         assert_eq!(config.folders, restored.folders);
+    }
+
+    #[test]
+    fn remove_missing_folders_drops_paths_that_no_longer_exist() {
+        let dir = tempfile::tempdir().unwrap();
+        let existing = dir.path().to_path_buf();
+        let missing = dir.path().join("does-not-exist");
+
+        let mut config = Config::default();
+        config.add_folder(existing.clone());
+        config.add_folder(missing);
+
+        let changed = config.remove_missing_folders();
+
+        assert!(changed);
+        assert_eq!(config.folders, vec![existing]);
+    }
+
+    #[test]
+    fn remove_missing_folders_is_noop_when_all_paths_exist() {
+        let dir = tempfile::tempdir().unwrap();
+
+        let mut config = Config::default();
+        config.add_folder(dir.path().to_path_buf());
+
+        let changed = config.remove_missing_folders();
+
+        assert!(!changed);
+        assert_eq!(config.folders, vec![dir.path().to_path_buf()]);
     }
 }
