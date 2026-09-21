@@ -11,16 +11,14 @@ use axum::Router;
 use axum::extract::DefaultBodyLimit;
 use axum::routing::{get, post};
 use std::future::Future;
-use std::net::SocketAddr;
 use tokio::net::TcpListener;
 
 pub async fn serve(
     state: AppState,
-    addr: SocketAddr,
+    listener: TcpListener,
     shutdown: impl Future<Output = ()> + Send + 'static,
 ) -> std::io::Result<()> {
     let router = build_router(state);
-    let listener = TcpListener::bind(addr).await?;
 
     axum::serve(listener, router)
         .with_graceful_shutdown(shutdown)

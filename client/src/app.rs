@@ -4,6 +4,7 @@ use iced::widget::{column, container, opaque, qr_code, row, rule, scrollable, st
 use iced::{Alignment, Length, Task, padding};
 use std::net::{IpAddr, SocketAddr};
 use std::path::PathBuf;
+use tokio::net::TcpListener;
 use tokio::sync::oneshot;
 
 use crate::button::ButtonLabel;
@@ -12,13 +13,12 @@ use crate::theme::{self, Theme};
 use crate::{Element, font};
 use crate::{icon, util};
 
-const SERVER_PORT: u16 = 8080;
-
 pub struct App {
     config: common::Config,
     folders: server::FolderHandle,
     app_state: server::AppState,
     server_state: ServerState,
+    server_addr: Option<SocketAddr>,
     shutdown_tx: Option<oneshot::Sender<()>>,
     local_ip: Option<IpAddr>,
     error: Option<String>,
@@ -40,6 +40,7 @@ impl Default for App {
             folders,
             app_state,
             server_state: ServerState::Stopped,
+            server_addr: None,
             shutdown_tx: None,
             local_ip: util::detect_local_ip(),
             error: None,
@@ -83,6 +84,7 @@ impl App {
             Message::ToggleServer => self.toggle_server(),
             Message::ServerStopped(result) => {
                 self.server_state = ServerState::Stopped;
+                self.server_addr = None;
                 self.shutdown_tx = None;
                 if let Err(err) = result {
                     self.error = Some(format!("Server stopped with an error: {err}"));
@@ -123,15 +125,39 @@ impl App {
         match self.server_state {
             ServerState::Stopped => {
                 self.error = None;
+                let addr = SocketAddr::from(([0, 0, 0, 0], 0));
+
+                let std_listener = match std::net::TcpListener::bind(addr) {
+                    Ok(listener) => listener,
+                    Err(err) => {
+                        self.error = Some(err.to_string());
+                        return Task::none();
+                    }
+                };
+
+                if let Err(err) = std_listener.set_nonblocking(true) {
+                    self.error = Some(err.to_string());
+                    return Task::none();
+                }
+
+                let listener = match TcpListener::from_std(std_listener) {
+                    Ok(listener) => listener,
+                    Err(err) => {
+                        self.error = Some(err.to_string());
+                        return Task::none();
+                    }
+                };
+
+                self.server_addr = listener.local_addr().ok();
+
                 let state = self.app_state.clone();
-                let addr = SocketAddr::from(([0, 0, 0, 0], SERVER_PORT));
                 let (shutdown_tx, shutdown_rx) = oneshot::channel();
                 self.shutdown_tx = Some(shutdown_tx);
                 self.server_state = ServerState::Running;
 
                 Task::perform(
                     async move {
-                        server::serve(state, addr, async {
+                        server::serve(state, listener, async {
                             let _ = shutdown_rx.await;
                         })
                         .await
@@ -214,7 +240,10 @@ impl App {
             .class(ButtonClass::Primary);
 
         let status: Option<Element<'_, Message>> = if is_running {
-            let url = self.local_ip.map(|ip| format!("http://{ip}:{SERVER_PORT}"));
+            let url = self
+                .local_ip
+                .zip(self.server_addr)
+                .map(|(ip, addr)| format!("http://{ip}:{}", addr.port()));
 
             let qr_btn = ButtonLabel::Icon(icon::qrcode())
                 .into_button()
