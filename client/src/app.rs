@@ -1,6 +1,8 @@
 use iced::widget::scrollable::{Direction, Scrollbar};
 use iced::widget::text::{Ellipsis, Wrapping};
-use iced::widget::{column, container, opaque, qr_code, row, rule, scrollable, stack, text};
+use iced::widget::{
+    column, container, opaque, qr_code, rich_text, row, rule, scrollable, span, stack, text,
+};
 use iced::{Alignment, Length, Task, padding};
 use std::net::{IpAddr, SocketAddr};
 use std::path::PathBuf;
@@ -196,10 +198,12 @@ impl App {
             column(self.config.folders.iter().map(|folder| {
                 let folder_icon = icon::folder().style(theme::widget::text::secondary);
 
-                let folder_path = text(folder.display().to_string())
+                let path = util::display_path(folder);
+
+                let folder_path = text(format!("{}{}", path.prefix, path.name))
                     .width(Length::Fill)
                     .wrapping(Wrapping::None)
-                    .ellipsis(Ellipsis::End);
+                    .ellipsis(Ellipsis::Start);
 
                 let remove_btn = ButtonLabel::Icon(icon::trash())
                     .into_button()

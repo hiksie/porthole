@@ -1,4 +1,5 @@
 use std::net::{IpAddr, Ipv4Addr};
+use std::path::Path;
 
 /// Best-effort detection of this machine's LAN IPv4 address, so the UI can show a
 /// URL that a phone on the same network can open.
@@ -39,9 +40,43 @@ fn is_vpn_iface(name: &str) -> bool {
     PREFIXES.iter().any(|prefix| name.starts_with(prefix))
 }
 
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct FolderPath {
+    pub prefix: String,
+    pub name: String,
+}
+
+pub fn display_path(path: &Path) -> FolderPath {
+    let rendered = render_with_tilde(path);
+
+    match rendered.rfind('/') {
+        Some(idx) => FolderPath {
+            prefix: rendered[..=idx].to_string(),
+            name: rendered[idx + 1..].to_string(),
+        },
+        None => FolderPath {
+            prefix: String::new(),
+            name: rendered,
+        },
+    }
+}
+
+fn render_with_tilde(path: &Path) -> String {
+    let Some(home) = dirs::home_dir() else {
+        return path.display().to_string();
+    };
+
+    match path.strip_prefix(&home) {
+        Ok(rest) if rest.as_os_str().is_empty() => "~".to_string(),
+        Ok(rest) => format!("~/{}", rest.display()),
+        Err(_) => path.display().to_string(),
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::path::PathBuf;
 
     #[test]
     fn ranks_home_lan_ahead_of_carrier_grade() {
@@ -62,5 +97,36 @@ mod tests {
         assert!(is_vpn_iface("utun3"));
         assert!(!is_vpn_iface("wlo1"));
         assert!(!is_vpn_iface("eth0"));
+    }
+
+    #[test]
+    fn replaces_home_dir_with_tilde() {
+        let home = dirs::home_dir().expect("home dir must be set for this test");
+        assert_eq!(
+            display_path(&home),
+            FolderPath {
+                prefix: String::new(),
+                name: "~".to_string(),
+            }
+        );
+        assert_eq!(
+            display_path(&home.join("Documents")),
+            FolderPath {
+                prefix: "~/".to_string(),
+                name: "Documents".to_string(),
+            }
+        );
+    }
+
+    #[test]
+    fn leaves_non_home_paths_untouched() {
+        let path = PathBuf::from("/srv/shared");
+        assert_eq!(
+            display_path(&path),
+            FolderPath {
+                prefix: "/srv/".to_string(),
+                name: "shared".to_string(),
+            }
+        );
     }
 }
