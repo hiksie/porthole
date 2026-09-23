@@ -1,8 +1,6 @@
 use iced::widget::scrollable::{Direction, Scrollbar};
 use iced::widget::text::{Ellipsis, Wrapping};
-use iced::widget::{
-    column, container, opaque, qr_code, rich_text, row, rule, scrollable, span, stack, text,
-};
+use iced::widget::{column, container, opaque, qr_code, row, rule, scrollable, stack, text};
 use iced::{Alignment, Length, Task, padding};
 use std::net::{IpAddr, SocketAddr};
 use std::path::PathBuf;
@@ -25,6 +23,7 @@ pub struct App {
     local_ip: Option<IpAddr>,
     error: Option<String>,
     qr_modal: Option<qr_code::Data>,
+    add_btn_enabled: bool,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -47,6 +46,7 @@ impl Default for App {
             local_ip: util::detect_local_ip(),
             error: None,
             qr_modal: None,
+            add_btn_enabled: true,
         }
     }
 }
@@ -54,6 +54,7 @@ impl Default for App {
 #[derive(Debug, Clone)]
 pub enum Message {
     AddFolder,
+    StartFolderPicking,
     FoldersPicked(Option<Vec<PathBuf>>),
     RemoveFolder(PathBuf),
     ToggleServer,
@@ -66,18 +67,28 @@ pub enum Message {
 impl App {
     pub fn update(&mut self, message: Message) -> Task<Message> {
         match message {
-            Message::AddFolder => Task::perform(
-                pick_folders(self.config.folders.clone()),
-                Message::FoldersPicked,
-            ),
-            Message::FoldersPicked(Some(paths)) => {
-                for path in paths {
-                    self.config.add_folder(path);
-                }
-                self.update_config();
+            Message::AddFolder => Task::batch([
+                Task::done(Message::StartFolderPicking),
+                Task::perform(
+                    pick_folders(self.config.folders.clone()),
+                    Message::FoldersPicked,
+                ),
+            ]),
+            Message::StartFolderPicking => {
+                self.add_btn_enabled = false;
                 Task::none()
             }
-            Message::FoldersPicked(None) => Task::none(),
+            Message::FoldersPicked(paths) => {
+                if let Some(paths) = paths {
+                    for path in paths {
+                        self.config.add_folder(path);
+                    }
+                    self.update_config();
+                }
+
+                self.add_btn_enabled = true;
+                Task::none()
+            }
             Message::RemoveFolder(path) => {
                 self.config.remove_folder(&path);
                 self.update_config();
@@ -180,7 +191,7 @@ impl App {
     pub fn view(&self) -> Element<'_, Message> {
         let add_button = ButtonLabel::IconWithText(icon::plus(), "ADD")
             .into_button()
-            .on_press(Message::AddFolder);
+            .on_press_maybe(self.add_btn_enabled.then_some(Message::AddFolder));
 
         let title = text("SHARED FOLDERS")
             .wrapping(Wrapping::None)
