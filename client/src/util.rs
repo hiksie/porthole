@@ -12,7 +12,7 @@ use std::path::Path;
 ///
 /// When several candidates remain, the most "home LAN"-looking one wins:
 /// `192.168/16` first, then `172.16/12`, then `10/8`.
-pub fn detect_local_ip() -> Option<IpAddr> {
+pub fn detect_local_ips() -> Option<Vec<IpAddr>> {
     let mut candidates: Vec<Ipv4Addr> = if_addrs::get_if_addrs()
         .ok()?
         .into_iter()
@@ -24,7 +24,11 @@ pub fn detect_local_ip() -> Option<IpAddr> {
         .collect();
 
     candidates.sort_by_key(rank);
-    candidates.into_iter().next().map(IpAddr::V4)
+    candidates
+        .into_iter()
+        .map(IpAddr::V4)
+        .collect::<Vec<_>>()
+        .into()
 }
 
 fn rank(ip: &Ipv4Addr) -> u8 {

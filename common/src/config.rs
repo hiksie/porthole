@@ -1,4 +1,5 @@
 use serde::{Deserialize, Serialize};
+use std::net::IpAddr;
 use std::path::{Path, PathBuf};
 
 use crate::APP_ID;
@@ -6,6 +7,8 @@ use crate::APP_ID;
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct Config {
     pub folders: Vec<PathBuf>,
+    pub selected_ip: Option<IpAddr>,
+    pub selected_port: Option<u16>,
 }
 
 impl Config {
@@ -61,6 +64,24 @@ impl Config {
     pub fn remove_folder(&mut self, folder: &Path) {
         self.folders.retain(|f| f != folder);
     }
+
+    pub fn set_selected_ip(&mut self, ip: IpAddr) -> bool {
+        if self.selected_ip == Some(ip) {
+            return false;
+        }
+
+        self.selected_ip = Some(ip);
+        true
+    }
+
+    pub fn set_selected_port(&mut self, port: u16) -> bool {
+        if self.selected_port == Some(port) {
+            return false;
+        }
+
+        self.selected_port = Some(port);
+        true
+    }
 }
 
 #[cfg(test)]
@@ -107,6 +128,40 @@ mod tests {
 
         assert!(changed);
         assert_eq!(config.folders, vec![existing]);
+    }
+
+    #[test]
+    fn set_selected_ip_reports_change_and_stores_value() {
+        let mut config = Config::default();
+        let ip = IpAddr::from([192, 168, 0, 1]);
+
+        assert!(config.set_selected_ip(ip));
+        assert_eq!(config.selected_ip, Some(ip));
+    }
+
+    #[test]
+    fn set_selected_ip_is_noop_when_unchanged() {
+        let mut config = Config::default();
+        let ip = IpAddr::from([192, 168, 0, 1]);
+        config.set_selected_ip(ip);
+
+        assert!(!config.set_selected_ip(ip));
+    }
+
+    #[test]
+    fn set_selected_port_reports_change_and_stores_value() {
+        let mut config = Config::default();
+
+        assert!(config.set_selected_port(8080));
+        assert_eq!(config.selected_port, Some(8080));
+    }
+
+    #[test]
+    fn set_selected_port_is_noop_when_unchanged() {
+        let mut config = Config::default();
+        config.set_selected_port(8080);
+
+        assert!(!config.set_selected_port(8080));
     }
 
     #[test]

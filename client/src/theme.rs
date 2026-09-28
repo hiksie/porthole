@@ -3,7 +3,15 @@ use iced::{
     theme::{Mode, Style, palette::Seed},
 };
 
-pub mod widget;
+pub mod button;
+pub mod container;
+pub mod menu;
+pub mod pick_list;
+pub mod qr_code;
+pub mod rule;
+pub mod scrollable;
+pub mod text;
+pub mod text_input;
 
 #[derive(Debug, Default)]
 pub struct Theme;
@@ -55,6 +63,8 @@ pub struct Palette {
     text_secondary_pressed: Color,
     text_disabled: Color,
     green: Color,
+    green_hover: Color,
+    green_pressed: Color,
     red: Color,
     backdrop: Color,
     scroller: ScrollerColors,
@@ -92,8 +102,10 @@ impl Palette {
         text_secondary_pressed: color!(0x9eb6c7),
         text_disabled: color!(0x525860),
         green: color!(0x7fae6e),
+        green_hover: color!(0x8cb67c),
+        green_pressed: color!(0x95bc85),
         red: color!(0xbf4f5a),
-        backdrop: color!(0x0d1621, 0.6),
+        backdrop: color!(0x0d1621, 0.7),
         scroller: ScrollerColors {
             active: color!(0x283343),
             hovered: color!(0x303e4f),
@@ -101,8 +113,8 @@ impl Palette {
         },
         button_primary: ButtonColors {
             active: color!(0x415a7c),
-            hovered: color!(0x415a7c),
-            pressed: color!(0x415a7c),
+            hovered: color!(0x476085),
+            pressed: color!(0x4d668e),
         },
         button_secondary: ButtonColors {
             active: Color::TRANSPARENT,
