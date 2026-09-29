@@ -1,5 +1,10 @@
 # Porthole
 
+<p align="center">
+  <img src="assets/showcase.png" alt="Porthole app" width="400">
+</p>
+
+
 Porthole is a small desktop app for sharing folders with other devices on your local network. Pick the folders you want to share, start the built-in server, and open the generated link (or scan the QR code) from any phone, tablet, or computer on the same network to browse, download, and upload files — no cloud, no accounts.
 
 ## Features
@@ -22,6 +27,9 @@ Porthole is a small desktop app for sharing folders with other devices on your l
 ```sh
 git clone git@github.com:hiksie/porthole.git
 cd porthole
-cargo build --release
 cargo run --release
 ```
+
+## License
+
+Porthole is licensed under the [MIT License](LICENSE).

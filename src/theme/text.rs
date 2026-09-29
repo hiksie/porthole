@@ -19,9 +19,3 @@ pub fn secondary(theme: &Theme) -> Style {
         color: Some(theme.palette().text_secondary),
     }
 }
-
-pub fn green(theme: &Theme) -> Style {
-    Style {
-        color: Some(theme.palette().green),
-    }
-}

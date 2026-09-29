@@ -1,16 +1,24 @@
+[package]
+name = "porthole"
+description = "Cross-platform desktop app for file sharing over the local network"
+version.workspace = true
+authors.workspace = true
+license.workspace = true
+edition.workspace = true
+
 [workspace]
-members = [
-    "client",
-    "server",
-    "common",
-]
-resolver = "2"
+members = ["server", "common"]
+
+[workspace.package]
+version = "0.1.0"
+authors = ["Oksana Khizhniak"]
+license = "MIT"
+edition = "2024"
 
 [workspace.dependencies]
 tokio = { version = "1.52.3", features = ["full"] }
 tokio-util = { version = "0.7", features = ["io"] }
 axum = { version = "0.8.9", features = ["macros", "multipart"] }
-axum-extra = { version = "0.12.6", features = ["typed-header"] }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 dirs = "6.0"
@@ -26,18 +34,19 @@ server = { path = "server" }
 git = "https://github.com/iced-rs/iced.git"
 rev = "8abb85ad924e63bd9a8c7c6ef133f406abfc846e"
 version = "0.15.0-dev"
-features = [
+
+[dependencies]
+tokio = { workspace = true }
+iced = { workspace = true, features = [
     "tokio",
     "web-colors",
     "advanced",
     "wgpu",
     "tiny-skia",
     "qr_code",
-    # "debug",
-]
-
-
-[workspace.dependencies.iced_runtime]
-git = "https://github.com/iced-rs/iced.git"
-rev = "8abb85ad924e63bd9a8c7c6ef133f406abfc846e"
-version = "0.15.0-dev"
+] }
+if-addrs = { workspace = true }
+dirs = { workspace = true }
+rfd = { workspace = true }
+common = { workspace = true }
+server = { workspace = true }
