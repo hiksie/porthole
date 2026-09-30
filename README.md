@@ -16,13 +16,32 @@ Porthole is a small desktop app for sharing folders with other devices on your l
 - **No accounts, no cloud** — everything stays on your local network.
 - **Cross-platform GUI** — built with [`iced`](https://github.com/iced-rs/iced).
 
-## Getting started
+## Installation
 
-### Prerequisites
+Download the archive for your platform from the [latest release](https://github.com/hiksie/porthole/releases/latest), extract it, and run `porthole` (`porthole.exe` on Windows).
 
-- [Rust](https://www.rust-lang.org/tools/install) (stable toolchain, edition 2024)
+| Platform | Download |
+| --- | --- |
+| Windows (x86_64) | [porthole-x86_64-pc-windows-msvc.zip](https://github.com/hiksie/porthole/releases/latest/download/porthole-x86_64-pc-windows-msvc.zip) |
+| macOS (Apple Silicon) | [porthole-aarch64-apple-darwin.tar.xz](https://github.com/hiksie/porthole/releases/latest/download/porthole-aarch64-apple-darwin.tar.xz) |
+| macOS (Intel) | [porthole-x86_64-apple-darwin.tar.xz](https://github.com/hiksie/porthole/releases/latest/download/porthole-x86_64-apple-darwin.tar.xz) |
+| Linux (x86_64) | [porthole-x86_64-unknown-linux-gnu.tar.xz](https://github.com/hiksie/porthole/releases/latest/download/porthole-x86_64-unknown-linux-gnu.tar.xz) |
+| Linux (ARM64) | [porthole-aarch64-unknown-linux-gnu.tar.xz](https://github.com/hiksie/porthole/releases/latest/download/porthole-aarch64-unknown-linux-gnu.tar.xz) |
 
-### Build & run
+### macOS
+
+macOS blocks unsigned apps downloaded from the internet. After extracting the archive, remove the quarantine attribute and run the app:
+
+```sh
+xattr -dr com.apple.quarantine porthole-aarch64-apple-darwin
+./porthole-aarch64-apple-darwin/porthole
+```
+
+On Intel Macs, use `porthole-x86_64-apple-darwin` instead.
+
+## Building from source
+
+Requires [Rust](https://www.rust-lang.org/tools/install) 1.93 or newer.
 
 ```sh
 git clone git@github.com:hiksie/porthole.git
