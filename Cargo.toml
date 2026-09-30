@@ -60,6 +60,24 @@ server = { workspace = true }
 [package.metadata.dist]
 dist = true
 
+[package.metadata.deb]
+section = "net"
+extended-description = """\
+Pick the folders you want to share, start the built-in server, and open the \
+generated link (or scan the QR code) from any device on the same network to \
+browse, download, and upload files."""
+license-file = ["LICENSE", "0"]
+# Wayland, X11, Vulkan and xkbcommon are loaded at runtime with dlopen, so
+# $auto only finds libc; list what the GUI needs explicitly.
+depends = "$auto, libxkbcommon0"
+recommends = "libvulkan1, xdg-desktop-portal"
+assets = [
+    ["target/release/porthole", "usr/bin/", "755"],
+    ["assets/porthole.desktop", "usr/share/applications/", "644"],
+    ["assets/logo.svg", "usr/share/icons/hicolor/scalable/apps/porthole.svg", "644"],
+    ["assets/fonts/OFL.txt", "usr/share/doc/porthole/", "644"],
+]
+
 [target.'cfg(windows)'.build-dependencies]
 winresource = "0.1"
 

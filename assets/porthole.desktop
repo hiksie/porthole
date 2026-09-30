@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Porthole
+Comment=Share folders with devices on your local network
+Exec=porthole
+Icon=porthole
+Terminal=false
+Categories=Network;FileTransfer;
+Keywords=share;files;lan;qr;
