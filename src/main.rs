@@ -9,8 +9,8 @@ mod settings;
 mod theme;
 mod util;
 
-use crate::theme::Theme;
 use crate::app::{App, Message};
+use crate::theme::Theme;
 
 type Element<'a, Message> = iced::Element<'a, Message, Theme, iced::Renderer>;
 type Text<'a> = iced::widget::Text<'a, Theme, iced::Renderer>;
@@ -23,5 +23,3 @@ fn main() -> iced::Result {
         .settings(App::settings())
         .run()
 }
-
-

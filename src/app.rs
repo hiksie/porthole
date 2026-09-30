@@ -317,7 +317,7 @@ impl App {
                 .config
                 .selected_ip
                 .as_ref()
-                .or_else(|| self.local_ips.as_ref().map(|ips| ips.first()).flatten());
+                .or_else(|| self.local_ips.as_ref().and_then(|ips| ips.first()));
 
             let port = self.server_addr.map(|addr| addr.port());
 
@@ -345,7 +345,7 @@ impl App {
                 .padding([0, 12])
                 .on_press(Message::open_settings(Data {
                     port: Some(port),
-                    ip: local_ip.clone(),
+                    ip: *local_ip,
                     ips: local_ips.clone(),
                     port_error: Default::default(),
                 }))
@@ -398,7 +398,7 @@ impl App {
         let qr_modal: Option<Element<'_, Message>> = self
             .qr_modal
             .as_ref()
-            .map(|qr_data| dialog(qr_code(&qr_data).cell_size(6).into(), Message::CloseQrModal));
+            .map(|qr_data| dialog(qr_code(qr_data).cell_size(6).into(), Message::CloseQrModal));
 
         let settings = self.settings.view().map(|s| s.map(Message::Settings));
 
@@ -414,14 +414,14 @@ impl App {
     }
 
     pub fn theme(&self) -> Option<Theme> {
-        Theme::default().into()
+        Theme.into()
     }
 
     pub fn window_settings() -> iced::window::Settings {
         let size = iced::Size::new(500.0, 768.0);
 
         iced::window::Settings {
-            size: size,
+            size,
             min_size: Some(size),
             ..iced::window::Settings::default()
         }
