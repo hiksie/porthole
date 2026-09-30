@@ -44,7 +44,7 @@ fn primary(theme: &Theme, status: Status) -> Style {
 
     let style = Style {
         background: Some(palette.button_primary.active.into()),
-        text_color: palette.text_primary.into(),
+        text_color: palette.text_primary,
         border: border::rounded(2),
         ..Style::default()
     };
@@ -68,7 +68,7 @@ fn secondary(theme: &Theme, status: Status) -> Style {
 
     let style = Style {
         background: None,
-        text_color: palette.text_secondary.into(),
+        text_color: palette.text_secondary,
         border: border::rounded(2).width(1).color(palette.border),
         ..Style::default()
     };
@@ -88,7 +88,7 @@ fn secondary(theme: &Theme, status: Status) -> Style {
             ..style
         },
         Status::Disabled => Style {
-            text_color: palette.text_disabled.into(),
+            text_color: palette.text_disabled,
             ..style
         },
     }
@@ -131,7 +131,7 @@ fn transparent(
 
     let style = Style {
         background: Some(bg_active.into()),
-        text_color: text_active.into(),
+        text_color: text_active,
         border: border::rounded(2),
         ..Style::default()
     };
@@ -149,7 +149,7 @@ fn transparent(
             ..style
         },
         Status::Disabled => Style {
-            text_color: palette.text_disabled.into(),
+            text_color: palette.text_disabled,
             ..style
         },
     }

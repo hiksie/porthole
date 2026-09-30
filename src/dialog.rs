@@ -33,5 +33,5 @@ pub fn dialog<'a, Message: Clone + 'a>(
     .align_right(Length::Fill)
     .padding(15);
 
-    opaque(stack![overlay, close_btn]).into()
+    opaque(stack![overlay, close_btn])
 }
