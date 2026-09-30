@@ -1,7 +1,7 @@
 # Porthole
 
 <p align="center">
-  <img src="assets/showcase.png" alt="Porthole app" width="400">
+  <img src="assets/showcase.png" alt="Porthole app" width="280">
 </p>
 
 
