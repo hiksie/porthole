@@ -5,6 +5,9 @@ version.workspace = true
 authors.workspace = true
 license.workspace = true
 edition.workspace = true
+rust-version.workspace = true
+repository.workspace = true
+publish.workspace = true
 
 [workspace]
 members = ["server", "common"]
@@ -14,6 +17,9 @@ version = "0.1.0"
 authors = ["Oksana Khizhniak"]
 license = "MIT"
 edition = "2024"
+rust-version = "1.93"
+repository = "https://github.com/hiksie/porthole"
+publish = false
 
 [workspace.dependencies]
 tokio = { version = "1.52.3", features = ["full"] }
@@ -25,7 +31,7 @@ dirs = "6.0"
 if-addrs = "0.13"
 rust-embed = "8"
 mime_guess = "2"
-rfd = "0.15"
+rfd = { version = "0.15", default-features = false, features = ["xdg-portal", "tokio"] }
 
 common = { path = "common" }
 server = { path = "server" }
@@ -50,3 +56,11 @@ dirs = { workspace = true }
 rfd = { workspace = true }
 common = { workspace = true }
 server = { workspace = true }
+
+[target.'cfg(windows)'.build-dependencies]
+winresource = "0.1"
+
+[profile.release]
+lto = "thin"
+codegen-units = 1
+strip = true
