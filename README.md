@@ -18,7 +18,7 @@ Porthole is a small desktop app for sharing folders with other devices on your l
 
 ## Installation
 
-Download the archive for your platform from the [latest release](https://github.com/hiksie/porthole/releases/latest), extract it, and run `porthole` (`porthole.exe` on Windows).
+Prebuilt binaries are available on the [latest release](https://github.com/hiksie/porthole/releases/latest) page:
 
 | Platform | Download |
 | --- | --- |
@@ -27,6 +27,8 @@ Download the archive for your platform from the [latest release](https://github.
 | macOS (Intel) | [porthole-x86_64-apple-darwin.tar.xz](https://github.com/hiksie/porthole/releases/latest/download/porthole-x86_64-apple-darwin.tar.xz) |
 | Linux (x86_64) | [porthole-x86_64-unknown-linux-gnu.tar.xz](https://github.com/hiksie/porthole/releases/latest/download/porthole-x86_64-unknown-linux-gnu.tar.xz) |
 | Linux (ARM64) | [porthole-aarch64-unknown-linux-gnu.tar.xz](https://github.com/hiksie/porthole/releases/latest/download/porthole-aarch64-unknown-linux-gnu.tar.xz) |
+| Debian / Ubuntu (x86_64) | [porthole_&lt;version&gt;_amd64.deb](https://github.com/hiksie/porthole/releases/latest) |
+| Debian / Ubuntu (ARM64) | [porthole_&lt;version&gt;_arm64.deb](https://github.com/hiksie/porthole/releases/latest) |
 
 ### macOS
 
