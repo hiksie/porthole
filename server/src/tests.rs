@@ -39,7 +39,7 @@ async fn list_roots_returns_configured_folder() {
 
     let json = body_json(response).await;
     assert_eq!(json[0]["id"], root);
-    assert!(json[0]["name"].as_str().unwrap().len() > 0);
+    assert!(!json[0]["name"].as_str().unwrap().is_empty());
 }
 
 #[tokio::test]
