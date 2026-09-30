@@ -20,7 +20,21 @@ permissions:
   contents: write
 
 jobs:
+  tag:
+    runs-on: ubuntu-22.04
+    outputs:
+      tag: ${{ steps.tag.outputs.tag }}
+    steps:
+      - id: tag
+        env:
+          TAG: ${{ inputs.tag }}
+          PLAN: ${{ inputs.plan }}
+        run: |
+          if [ -z "$TAG" ]; then TAG=$(jq -r .announcement_tag <<< "$PLAN"); fi
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+
   deb:
+    needs: tag
     strategy:
       matrix:
         runner: [ubuntu-22.04, ubuntu-22.04-arm]
@@ -34,8 +48,39 @@ jobs:
       - name: Upload to release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          TAG: ${{ inputs.tag }}
-          PLAN: ${{ inputs.plan }}
+          TAG: ${{ needs.tag.outputs.tag }}
         run: |
-          if [ -z "$TAG" ]; then TAG=$(jq -r .announcement_tag <<< "$PLAN"); fi
-          gh release upload "$TAG" target/debian/*.deb
+          cd target/debian
+          for f in *.deb; do sha256sum "$f" > "$f.sha256"; done
+          gh release upload "$TAG" *.deb *.deb.sha256 --clobber
+
+  # Runs once after both packages are uploaded, so the two matrix jobs
+  # don't overwrite each other's edits to the release notes.
+  notes:
+    needs: [tag, deb]
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Add packages to the download table
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+          TAG: ${{ needs.tag.outputs.tag }}
+        run: |
+          gh release view "$TAG" --json body --jq .body > body.md
+          gh release view "$TAG" --json assets --jq '.assets[].name | select(endswith(".deb"))' > debs.txt
+          python3 - <<'EOF'
+          import os
+          repo, tag = os.environ["GH_REPO"], os.environ["TAG"]
+          base = f"https://github.com/{repo}/releases/download/{tag}"
+          platforms = {"amd64": "x64 Debian/Ubuntu", "arm64": "ARM64 Debian/Ubuntu"}
+          rows = []
+          for name in open("debs.txt").read().split():
+              arch = name.rsplit("_", 1)[1].removesuffix(".deb")
+              rows.append(f"| [{name}]({base}/{name}) | {platforms.get(arch, arch)} | [checksum]({base}/{name}.sha256) |")
+          # Drop rows from a previous run, then append after the last table row.
+          lines = [l for l in open("body.md").read().splitlines() if ".deb](" not in l]
+          last = max(i for i, l in enumerate(lines) if l.startswith("|"))
+          lines[last + 1:last + 1] = rows
+          open("body.md", "w").write("\n".join(lines) + "\n")
+          EOF
+          gh release edit "$TAG" --notes-file body.md
