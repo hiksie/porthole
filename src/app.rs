@@ -423,6 +423,13 @@ impl App {
         iced::window::Settings {
             size,
             min_size: Some(size),
+            // Wayland compositors match the window to porthole.desktop by this id
+            // to show the app icon; iced only fills it from `Settings::id` on BSD.
+            #[cfg(target_os = "linux")]
+            platform_specific: iced::window::settings::PlatformSpecific {
+                application_id: common::APP_ID.into(),
+                ..Default::default()
+            },
             ..iced::window::Settings::default()
         }
     }

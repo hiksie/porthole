@@ -7,3 +7,4 @@ Icon=porthole
 Terminal=false
 Categories=Network;FileTransfer;
 Keywords=share;files;lan;qr;
+StartupWMClass=porthole
